@@ -1,6 +1,6 @@
 <resources>
     <string name="generatePassword">Create Password</string>
-    <string name="Password_Length">Password Length: </string>
+    <string name="Password_Length">Password Length: %1$d</string>
     <string name="Capital_Letters">Capital Letters (default)</string>
     <string name="Numbers">Numbers</string>
     <string name="Symbols">Symbols</string>
@@ -15,4 +15,5 @@
     <string name="numbers">0123456789</string>
     <string name="capital_letters">ABCDEFGHIJKLMNOPQRSTUVWXYZ</string>
     <string name="lowercase_letters">abcdefghijklmnopqrstuvwxyz</string>
+    <string name="password_display">%1$s</string>
 </resources>
