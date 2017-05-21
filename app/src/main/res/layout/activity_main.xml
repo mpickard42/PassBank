@@ -114,7 +114,7 @@
             android:textColor="@color/Darkblue" />
 
         <TextView
-            android:id="@+id/passwordTextView"
+            android:id="@+id/password_display"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_above="@+id/copyToClipboardButton"

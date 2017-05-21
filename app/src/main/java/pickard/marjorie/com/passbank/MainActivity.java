@@ -3,6 +3,7 @@ package pickard.marjorie.com.passbank;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
@@ -35,12 +36,9 @@ public class MainActivity extends AppCompatActivity {
     boolean upperChecked = true;
     int passLength;
     String password;
-    boolean numPresent = false;
-    boolean capitalPresent = false;
-    boolean lowercasePresent = false;
-    boolean symbolPresent = false;
     ImageButton copyToClipboard;
     private TextView mTextMessage;
+
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -71,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
         //initialize the button/bar/checkboxes/text
         lengthSeekBar = (SeekBar) findViewById(R.id.lengthSeekBar);
         lengthTextView = (TextView) findViewById(R.id.lengthTextView);
-        passwordTextView = (TextView) findViewById(R.id.passwordTextView);
+        passwordTextView = (TextView) findViewById(R.id.password_display);
         capLetCheckBox=(CheckBox)findViewById(R.id.capLetCheckBox);
         lowerCheckBox=(CheckBox)findViewById(R.id.lowerCheckBox);
         numCheckBox=(CheckBox)findViewById(R.id.numCheckBox);
@@ -79,11 +77,13 @@ public class MainActivity extends AppCompatActivity {
         btnGenerate= (Button)findViewById(R.id.btnGenerate);
         copyToClipboard= (ImageButton)findViewById(R.id.copyToClipboardButton);
 
-        passwordTextView.setText("Password Here");
-
+        Resources res = getResources();
+        passwordTextView.setText(String.format(res.getString(R.string.password_display), "Password Here"));
 
         //Showing the password length initially and setting the initial password length to 8 characters
-        lengthTextView.setText("Password Length: " + (lengthSeekBar.getProgress() + 8));
+//        lengthTextView.setText("Password Length: " + (lengthSeekBar.getProgress() + 8));
+
+        lengthTextView.setText(String.format(res.getString(R.string.Password_Length), (lengthSeekBar.getProgress() + 8)));
         passLength = 8;
 
         //waits for the user to change the password length slider
@@ -93,7 +93,8 @@ public class MainActivity extends AppCompatActivity {
             //as the slider is moved it updates the length of the password
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 passLength = progress + 8;  //change the value of the password length
-                lengthTextView.setText("Password Length: " + passLength);  //Change the shown value of the password length
+                Resources res = getResources();
+                lengthTextView.setText(String.format(res.getString(R.string.Password_Length), passLength));  //Change the shown value of the password length
             }
 
             @Override
@@ -120,7 +121,8 @@ public class MainActivity extends AppCompatActivity {
                 password = passwordGenerate();
 
                 //Show Password
-                passwordTextView.setText(password);
+                Resources res = getResources();
+                passwordTextView.setText(String.format(res.getString(R.string.password_display), password));
             }
         });
 
@@ -140,10 +142,10 @@ public class MainActivity extends AppCompatActivity {
     public String passwordGenerate () {
 
         //Arrays of the characters arranged by type
-        char[] charNum = getString(R.string.numbers).toCharArray();
-        char[] charCap = getString(R.string.capital_letters).toCharArray();
-        char[] charLower = getString(R.string.lowercase_letters).toCharArray();
-        char[] charSym = "~`!@#$%^&*()-_=+[{]};:\\|'\",<.>/?".toCharArray(); //hardcoded because some characters uncompatible with xml
+        char[] numberArray = getString(R.string.numbers).toCharArray();
+        char[] capitalArray = getString(R.string.capital_letters).toCharArray();
+        char[] lowercaseArray = getString(R.string.lowercase_letters).toCharArray();
+        char[] symbolArray = "~`!@#$%^&*()-_=+[{]};:\\|'\",<.>/?".toCharArray(); //hardcoded because some characters uncompatible with xml
 
         StringBuilder characters = new StringBuilder();
         if (upperChecked)
@@ -156,64 +158,27 @@ public class MainActivity extends AppCompatActivity {
             characters.append("~`!@#$%^&*()-_=+[{]};:\\|'\",<.>/?");  //hardcoded because some characters uncompatible with xml
 
         String str = characters.toString();
-        char[] chars = str.toCharArray();
-
-
+        char[] allCharacters = str.toCharArray();
 
 
         StringBuilder password = new StringBuilder();
-        Random random1 = new Random();
+        Random rand = new Random();
 
         //add characters to password one character at a time
-        //TODO put in breakpoint so the whileloop does not go on forever or add one of each of the desired characters at the beginning
         int i = 1;
+        char ci;
         while (i <= passLength) {
-            char ci = chars[random1.nextInt(chars.length)];
-            //Toast.makeText(MainActivity.this, "i: " + i + ci, Toast.LENGTH_SHORT).show();
+            if(i == 2 && upperChecked)
+                ci = capitalArray[rand.nextInt(capitalArray.length)];
+            else if (i == 4 && lowerChecked)
+                ci = lowercaseArray[rand.nextInt(lowercaseArray.length)];
+            else if (i == 6 && numChecked)
+                ci = numberArray[rand.nextInt(numberArray.length)];
+            else if (i == 8 && symChecked)
+                ci = symbolArray[rand.nextInt(symbolArray.length)];
+            else
+                ci = allCharacters[rand.nextInt(allCharacters.length)];
             password.append(ci);
-
-            //Booleans to check if the different types of characters are present
-            String charString = Character.toString(ci);  //convert from character to string
-            if (new String(charNum).contains(charString)) {
-                numPresent = true;
-            }
-            if (new String(charCap).contains(charString)) {
-                capitalPresent = true;
-
-            }
-            if (new String(charLower).contains(charString)) {
-                lowercasePresent = true;
-            }
-            if (new String(charSym).contains(charString)) {
-                symbolPresent = true;
-            }
-
-            //Check to see if values are present but not wanted
-            if (i == passLength) {
-                if (!capitalPresent && upperChecked) {
-                    password.setLength(0);
-                    i = 0;
-                    setBooleansFalse();
-                }
-
-                if (!lowercasePresent && lowerChecked) {
-                    password.setLength(0);
-                    i = 0;
-                    setBooleansFalse();
-                }
-
-                if (!numPresent && numChecked) {
-                    password.setLength(0);
-                    i = 0;
-                    setBooleansFalse();
-                }
-
-                if (!symbolPresent && symChecked) {
-                    password.setLength(0);
-                    i = 0;
-                    setBooleansFalse();
-                }
-            }
 
             i++;
         }
@@ -228,12 +193,6 @@ public class MainActivity extends AppCompatActivity {
         capLetCheckBox.setChecked(true);
     }
 
-    public void setBooleansFalse() {
-        numPresent = false;
-        capitalPresent = false;
-        lowercasePresent = false;
-        symbolPresent = false;
-    }
 
     public void onCheckboxClicked (View view) {
         //Is the view now checked?
