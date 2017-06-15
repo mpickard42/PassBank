@@ -1,12 +1,23 @@
 package pickard.marjorie.com.passbank;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.TextView;
+
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 
 /**
@@ -21,19 +32,14 @@ public class password_storage extends Fragment {
 
     private OnFragmentInteractionListener mListener;
 
+    Button btnWriteFile;
+    Button btnReadFile;
+    TextView txtViewOutput;
+
     public password_storage() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment password_storage.
-     */
-    // TODO: Rename and change types and number of parameters
     public static password_storage newInstance() {
         password_storage fragment = new password_storage();
         return fragment;
@@ -48,7 +54,68 @@ public class password_storage extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_password_storage, container, false);
+        View view = inflater.inflate(R.layout.fragment_password_storage, container, false);
+        btnWriteFile= (Button) view.findViewById(R.id.btnWriteFile);
+        btnReadFile= (Button) view.findViewById(R.id.btnReadFile);
+        txtViewOutput = (TextView) view.findViewById(R.id.text_display);
+
+        //When the WriteFile button is clicked
+        btnWriteFile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String filename = "myfile";
+                String string = "Hello world2!";
+                FileOutputStream outputStream;
+
+                try {
+                    outputStream = getContext().openFileOutput(filename, Context.MODE_PRIVATE);
+                    outputStream.write(string.getBytes());
+                    outputStream.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        //When the ReadFile button is clicked
+        btnReadFile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String filename = "myfile";
+                String string = "";
+
+
+
+                try {
+                    InputStream inputStream = getContext().openFileInput(filename);
+                    if (inputStream != null){
+                        InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+                        BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+                        String recieveString = "";
+                        StringBuilder stringBuilder = new StringBuilder();
+
+                        while( (recieveString = bufferedReader.readLine()) != null ){
+                            stringBuilder.append(recieveString);
+                        }
+
+                        inputStream.close();
+                        string = stringBuilder.toString();
+                    }
+                }
+                catch (FileNotFoundException e) {
+                    Log.e("login activity", "File not found: " + e.toString());
+                }
+                catch (IOException e) {
+                    Log.e("login activity", "Can not read file: " + e.toString());
+                }
+
+                Resources res = getResources();
+                txtViewOutput.setText(String.format(res.getString(R.string.password_display), string));
+            }
+        });
+
+
+        return view;
     }
 
     // TODO: Rename method, update argument and hook method into UI event

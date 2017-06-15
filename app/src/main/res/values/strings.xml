@@ -17,6 +17,7 @@
     <string name="lowercase_letters">abcdefghijklmnopqrstuvwxyz</string>
     <string name="password_display">%1$s</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="write_file">Write to File</string>
+    <string name="read_file">Read from File</string>
 </resources>
