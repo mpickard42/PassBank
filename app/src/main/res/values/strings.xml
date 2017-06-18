@@ -21,4 +21,8 @@
     <string name="write_file">Write to File</string>
     <string name="read_file">Read from File</string>
     <string name="delete_file">Delete File</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="enter_website">Website:</string>
+    <string name="enter_username">Username:</string>
 </resources>

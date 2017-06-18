@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -25,6 +26,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Random;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+
 
 
 
@@ -56,6 +60,8 @@ public class create_password extends Fragment implements View.OnClickListener{
     ImageButton copyToClipboard;
     private static final String TAG = "MyActivity";
     Button btnSave;
+    String website = "";
+    String username = "";
 
 
     public create_password() {
@@ -161,44 +167,28 @@ public class create_password extends Fragment implements View.OnClickListener{
         btnSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v){
-                String filename = "passwordList";
-                String existingData;
-                FileOutputStream outputStream;
-                String fileInput = "username," + password + ";";
+                AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getContext());
+                LayoutInflater inflater = getActivity().getLayoutInflater();
+                final View dialogView = inflater.inflate(R.layout.fragment_save_password, null);
+                dialogBuilder.setView(dialogView);
+                final EditText enterWebsite = (EditText) dialogView.findViewById(R.id.enterWebsite);
+                final EditText enterUsername = (EditText) dialogView.findViewById(R.id.enterUsername);
 
-                try {
-                    InputStream inputStream = getContext().openFileInput(filename);
-                    if (inputStream != null){
-                        InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
-                        BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-                        String recieveString = "";
-                        StringBuilder stringBuilder = new StringBuilder();
-
-                        while( (recieveString = bufferedReader.readLine()) != null ){
-                            stringBuilder.append(recieveString);
-                        }
-
-                        inputStream.close();
-                        stringBuilder.append(fileInput);
-                        existingData = stringBuilder.toString();
-
-                        try {
-                            outputStream = getContext().openFileOutput(filename, Context.MODE_PRIVATE);
-                            outputStream.write(existingData.getBytes());
-                            outputStream.close();
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
+                dialogBuilder.setTitle("Save Password");
+                dialogBuilder.setPositiveButton("Save", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        website = enterWebsite.getText().toString();
+                        username = enterUsername.getText().toString();
+                        savePassword();
                     }
-                }
-                catch (FileNotFoundException e) {
-                    Log.e("login activity", "File not found: " + e.toString());
-                }
-                catch (IOException e) {
-                    Log.e("login activity", "Can not read file: " + e.toString());
-                }
-
-
+                });
+                dialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        //pass
+                    }
+                });
+                AlertDialog b = dialogBuilder.create();
+                b.show();
             }
         });
 
@@ -232,6 +222,47 @@ public class create_password extends Fragment implements View.OnClickListener{
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
+
+    public void savePassword(){
+        String filename = "passwordList";
+        String existingData;
+        FileOutputStream outputStream;
+        String fileInput = website + "," + username + "," + password + ";";
+
+        try {
+            InputStream inputStream = getContext().openFileInput(filename);
+            if (inputStream != null){
+                InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+                BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+                String recieveString = "";
+                StringBuilder stringBuilder = new StringBuilder();
+
+                while( (recieveString = bufferedReader.readLine()) != null ){
+                    stringBuilder.append(recieveString);
+                }
+
+                inputStream.close();
+                stringBuilder.append(fileInput);
+                existingData = stringBuilder.toString();
+
+                try {
+                    outputStream = getContext().openFileOutput(filename, Context.MODE_PRIVATE);
+                    outputStream.write(existingData.getBytes());
+                    outputStream.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        catch (FileNotFoundException e) {
+            Log.e("login activity", "File not found: " + e.toString());
+        }
+        catch (IOException e) {
+            Log.e("login activity", "Can not read file: " + e.toString());
+        }
+        Toast.makeText(getActivity(), "saved", Toast.LENGTH_SHORT).show();
+    }
+
 
     public String passwordGenerate () {
         //Arrays of the characters arranged by type
