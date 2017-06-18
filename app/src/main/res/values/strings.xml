@@ -20,4 +20,5 @@
 
     <string name="write_file">Write to File</string>
     <string name="read_file">Read from File</string>
+    <string name="delete_file">Delete File</string>
 </resources>

@@ -18,6 +18,12 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Random;
 
 
@@ -49,6 +55,7 @@ public class create_password extends Fragment implements View.OnClickListener{
     String password;
     ImageButton copyToClipboard;
     private static final String TAG = "MyActivity";
+    Button btnSave;
 
 
     public create_password() {
@@ -87,6 +94,7 @@ public class create_password extends Fragment implements View.OnClickListener{
         symCheckBox.setOnClickListener(this);
         btnGenerate= (Button) view.findViewById(R.id.btnGenerate);
         copyToClipboard= (ImageButton) view.findViewById(R.id.copyToClipboardButton);
+        btnSave= (Button) view.findViewById(R.id.btnSave);
 
 
         Resources res = getResources();
@@ -150,6 +158,49 @@ public class create_password extends Fragment implements View.OnClickListener{
             }
         });
 
+        btnSave.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v){
+                String filename = "passwordList";
+                String existingData;
+                FileOutputStream outputStream;
+                String fileInput = "username," + password + ";";
+
+                try {
+                    InputStream inputStream = getContext().openFileInput(filename);
+                    if (inputStream != null){
+                        InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+                        BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+                        String recieveString = "";
+                        StringBuilder stringBuilder = new StringBuilder();
+
+                        while( (recieveString = bufferedReader.readLine()) != null ){
+                            stringBuilder.append(recieveString);
+                        }
+
+                        inputStream.close();
+                        stringBuilder.append(fileInput);
+                        existingData = stringBuilder.toString();
+
+                        try {
+                            outputStream = getContext().openFileOutput(filename, Context.MODE_PRIVATE);
+                            outputStream.write(existingData.getBytes());
+                            outputStream.close();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+                catch (FileNotFoundException e) {
+                    Log.e("login activity", "File not found: " + e.toString());
+                }
+                catch (IOException e) {
+                    Log.e("login activity", "Can not read file: " + e.toString());
+                }
+
+
+            }
+        });
 
         return view;
     }

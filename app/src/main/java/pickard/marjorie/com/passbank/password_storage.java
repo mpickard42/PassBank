@@ -5,11 +5,13 @@ import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.Editable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import java.io.BufferedReader;
@@ -35,6 +37,8 @@ public class password_storage extends Fragment {
     Button btnWriteFile;
     Button btnReadFile;
     TextView txtViewOutput;
+    EditText inputText;
+    Button btnDeleteFile;
 
     public password_storage() {
         // Required empty public constructor
@@ -58,13 +62,15 @@ public class password_storage extends Fragment {
         btnWriteFile= (Button) view.findViewById(R.id.btnWriteFile);
         btnReadFile= (Button) view.findViewById(R.id.btnReadFile);
         txtViewOutput = (TextView) view.findViewById(R.id.text_display);
+        inputText = (EditText) view.findViewById(R.id.inputText);
+        btnDeleteFile= (Button) view.findViewById(R.id.btnDeleteFile);
 
         //When the WriteFile button is clicked
         btnWriteFile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String filename = "myfile";
-                String string = "Hello world2!";
+                String filename = "passwordList";
+                String string = inputText.getText().toString();
                 FileOutputStream outputStream;
 
                 try {
@@ -81,10 +87,8 @@ public class password_storage extends Fragment {
         btnReadFile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String filename = "myfile";
+                String filename = "passwordList";
                 String string = "";
-
-
 
                 try {
                     InputStream inputStream = getContext().openFileInput(filename);
@@ -111,6 +115,24 @@ public class password_storage extends Fragment {
 
                 Resources res = getResources();
                 txtViewOutput.setText(String.format(res.getString(R.string.password_display), string));
+            }
+        });
+
+
+        btnDeleteFile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String filename = "passwordList";
+                String string = "";
+                FileOutputStream outputStream;
+
+                try {
+                    outputStream = getContext().openFileOutput(filename, Context.MODE_PRIVATE);
+                    outputStream.write(string.getBytes());
+                    outputStream.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         });
 
