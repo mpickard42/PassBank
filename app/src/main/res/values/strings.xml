@@ -16,6 +16,8 @@
     <string name="capital_letters">ABCDEFGHIJKLMNOPQRSTUVWXYZ</string>
     <string name="lowercase_letters">abcdefghijklmnopqrstuvwxyz</string>
     <string name="password_display">%1$s</string>
+    <string name="copy">copy</string>
+    <string name="save">save</string>
 
 
     <string name="write_file">Write to File</string>

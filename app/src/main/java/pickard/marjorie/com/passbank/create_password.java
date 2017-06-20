@@ -57,7 +57,7 @@ public class create_password extends Fragment implements View.OnClickListener{
     boolean upperChecked = true;
     int passLength;
     String password;
-    ImageButton copyToClipboard;
+    Button copyToClipboard;
     private static final String TAG = "MyActivity";
     Button btnSave;
     String website = "";
@@ -99,7 +99,7 @@ public class create_password extends Fragment implements View.OnClickListener{
         symCheckBox=(CheckBox) view.findViewById(R.id.symCheckBox);
         symCheckBox.setOnClickListener(this);
         btnGenerate= (Button) view.findViewById(R.id.btnGenerate);
-        copyToClipboard= (ImageButton) view.findViewById(R.id.copyToClipboardButton);
+        copyToClipboard= (Button) view.findViewById(R.id.copyToClipboardButton);
         btnSave= (Button) view.findViewById(R.id.btnSave);
 
 
@@ -225,10 +225,11 @@ public class create_password extends Fragment implements View.OnClickListener{
 
     public void savePassword(){
         String filename = "passwordList";
-        String existingData;
+        String existingData = "";
         FileOutputStream outputStream;
         String fileInput = website + "," + username + "," + password + ";";
 
+        //get data already stored
         try {
             InputStream inputStream = getContext().openFileInput(filename);
             if (inputStream != null){
@@ -245,13 +246,7 @@ public class create_password extends Fragment implements View.OnClickListener{
                 stringBuilder.append(fileInput);
                 existingData = stringBuilder.toString();
 
-                try {
-                    outputStream = getContext().openFileOutput(filename, Context.MODE_PRIVATE);
-                    outputStream.write(existingData.getBytes());
-                    outputStream.close();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+
             }
         }
         catch (FileNotFoundException e) {
@@ -259,6 +254,15 @@ public class create_password extends Fragment implements View.OnClickListener{
         }
         catch (IOException e) {
             Log.e("login activity", "Can not read file: " + e.toString());
+        }
+
+        //add in new data
+        try {
+            outputStream = getContext().openFileOutput(filename, Context.MODE_PRIVATE);
+            outputStream.write(existingData.getBytes());
+            outputStream.close();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         Toast.makeText(getActivity(), "saved", Toast.LENGTH_SHORT).show();
     }
