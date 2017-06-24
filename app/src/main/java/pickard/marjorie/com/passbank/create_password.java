@@ -28,6 +28,8 @@ import java.io.InputStreamReader;
 import java.util.Random;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
+import org.json.*;
 
 
 
@@ -225,55 +227,38 @@ public class create_password extends Fragment implements View.OnClickListener{
 
     public void savePassword(){
         String filename = "passwordList";
-        String existingData = "";
-        FileOutputStream outputStream;
-        String fileInput = website + "," + username + "," + password + ";";
 
-        //get data already stored
+        SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        String passwordList = sharedPref.getString(filename, "[]");
         try {
-            InputStream inputStream = getContext().openFileInput(filename);
-            if (inputStream != null){
-                InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
-                BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-                String recieveString = "";
-                StringBuilder stringBuilder = new StringBuilder();
+            JSONArray jsonArray = new JSONArray(passwordList);
+            JSONObject jsonObj= new JSONObject();
+            jsonObj.put("website", website);
+            jsonObj.put("username", username);
+            jsonObj.put("password", password);
+            jsonArray.put(jsonObj);
+            editor.putString(filename, jsonArray.toString());
+            editor.apply();
 
-                while( (recieveString = bufferedReader.readLine()) != null ){
-                    stringBuilder.append(recieveString);
-                }
-
-                inputStream.close();
-                stringBuilder.append(fileInput);
-                existingData = stringBuilder.toString();
-
-
-            }
+            Toast.makeText(getActivity(), "saved", Toast.LENGTH_SHORT).show();
         }
-        catch (FileNotFoundException e) {
-            Log.e("login activity", "File not found: " + e.toString());
+        catch (JSONException e) {
+            Log.e("jsonException", e.toString());
         }
-        catch (IOException e) {
-            Log.e("login activity", "Can not read file: " + e.toString());
-        }
-
-        //add in new data
-        try {
-            outputStream = getContext().openFileOutput(filename, Context.MODE_PRIVATE);
-            outputStream.write(existingData.getBytes());
-            outputStream.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        Toast.makeText(getActivity(), "saved", Toast.LENGTH_SHORT).show();
     }
 
+    public int initializeJson(){
+
+        return 0;
+    }
 
     public String passwordGenerate () {
         //Arrays of the characters arranged by type
         char[] numberArray = getString(R.string.numbers).toCharArray();
         char[] capitalArray = getString(R.string.capital_letters).toCharArray();
         char[] lowercaseArray = getString(R.string.lowercase_letters).toCharArray();
-        char[] symbolArray = "~`!@#$%^&*()-_=+[{]};:\\|'\",<.>/?".toCharArray(); //hardcoded because some characters uncompatible with xml
+        char[] symbolArray = "~`!@#$%^&*()-_=+[{]};:|',<.>/?".toCharArray(); //hardcoded because some characters uncompatible with xml
 
         StringBuilder characters = new StringBuilder();
         if (upperChecked)

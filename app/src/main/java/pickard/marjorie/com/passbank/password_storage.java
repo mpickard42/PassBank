@@ -20,7 +20,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Iterator;
 
+import android.content.SharedPreferences;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -34,10 +40,8 @@ public class password_storage extends Fragment {
 
     private OnFragmentInteractionListener mListener;
 
-    Button btnWriteFile;
     Button btnReadFile;
     TextView txtViewOutput;
-    EditText inputText;
     Button btnDeleteFile;
 
     public password_storage() {
@@ -59,62 +63,35 @@ public class password_storage extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_password_storage, container, false);
-        btnWriteFile= (Button) view.findViewById(R.id.btnWriteFile);
         btnReadFile= (Button) view.findViewById(R.id.btnReadFile);
         txtViewOutput = (TextView) view.findViewById(R.id.text_display);
-        inputText = (EditText) view.findViewById(R.id.inputText);
         btnDeleteFile= (Button) view.findViewById(R.id.btnDeleteFile);
-
-        //When the WriteFile button is clicked
-        btnWriteFile.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String filename = "passwordList";
-                String string = inputText.getText().toString();
-                FileOutputStream outputStream;
-
-                try {
-                    outputStream = getContext().openFileOutput(filename, Context.MODE_PRIVATE);
-                    outputStream.write(string.getBytes());
-                    outputStream.close();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
 
         //When the ReadFile button is clicked
         btnReadFile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String filename = "passwordList";
-                String string = "";
+                String output = "";
+                SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+                String passwordArray = sharedPref.getString(filename, "[]");
 
-                try {
-                    InputStream inputStream = getContext().openFileInput(filename);
-                    if (inputStream != null){
-                        InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
-                        BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-                        String recieveString = "";
-                        StringBuilder stringBuilder = new StringBuilder();
-
-                        while( (recieveString = bufferedReader.readLine()) != null ){
-                            stringBuilder.append(recieveString);
+                try{
+                    JSONArray jsonArray = new JSONArray(passwordArray);
+                    for(int i = 0; i < jsonArray.length(); i++){
+                        JSONObject passwordObj = jsonArray.getJSONObject(i);
+                        Iterator<?> keys = passwordObj.keys();
+                        while( keys.hasNext() ) {
+                            String key = (String) keys.next();
+                            output = output + key + ": " + passwordObj.get(key) + "\n";
                         }
-
-                        inputStream.close();
-                        string = stringBuilder.toString();
                     }
                 }
-                catch (FileNotFoundException e) {
-                    Log.e("login activity", "File not found: " + e.toString());
+                catch (JSONException e) {
+                    Log.e("jsonException", e.toString());
                 }
-                catch (IOException e) {
-                    Log.e("login activity", "Can not read file: " + e.toString());
-                }
-
                 Resources res = getResources();
-                txtViewOutput.setText(String.format(res.getString(R.string.password_display), string));
+                txtViewOutput.setText(String.format(res.getString(R.string.password_display), output));
             }
         });
 
@@ -123,16 +100,10 @@ public class password_storage extends Fragment {
             @Override
             public void onClick(View v) {
                 String filename = "passwordList";
-                String string = "";
-                FileOutputStream outputStream;
+                SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPref.edit();
+                editor.remove(filename).apply();
 
-                try {
-                    outputStream = getContext().openFileOutput(filename, Context.MODE_PRIVATE);
-                    outputStream.write(string.getBytes());
-                    outputStream.close();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
             }
         });
 
