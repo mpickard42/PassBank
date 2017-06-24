@@ -85,6 +85,7 @@ public class password_storage extends Fragment {
                             String key = (String) keys.next();
                             output = output + key + ": " + passwordObj.get(key) + "\n";
                         }
+                        output = output + "\n";
                     }
                 }
                 catch (JSONException e) {
