@@ -10,10 +10,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-
+import android.text.TextWatcher;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -27,6 +28,9 @@ import android.content.SharedPreferences;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import java.util.ArrayList;
+import android.widget.ListView;
+import java.util.HashMap;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -43,6 +47,18 @@ public class password_storage extends Fragment {
     Button btnReadFile;
     TextView txtViewOutput;
     Button btnDeleteFile;
+
+    // List view
+    private ListView lv;
+
+    // Search EditText
+    EditText inputSearch;
+
+    // Listview Adapter
+    ArrayAdapter<String> adapter;
+
+    // ArrayList for Listview
+    ArrayList<HashMap<String, String>> productList;
 
     public password_storage() {
         // Required empty public constructor
@@ -66,6 +82,58 @@ public class password_storage extends Fragment {
         btnReadFile= (Button) view.findViewById(R.id.btnReadFile);
         txtViewOutput = (TextView) view.findViewById(R.id.text_display);
         btnDeleteFile= (Button) view.findViewById(R.id.btnDeleteFile);
+
+
+        lv = (ListView) view.findViewById(R.id.list_view);
+        inputSearch = (EditText) view.findViewById(R.id.inputSearch);
+        String filename = "passwordList";
+        String passObjTemp = "";
+        ArrayList<String> passwordList = new ArrayList<String>();
+        SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+        String passwordArray = sharedPref.getString(filename, "[]");
+
+        try{
+            JSONArray jsonArray = new JSONArray(passwordArray);
+            for(int i = 0; i < jsonArray.length(); i++){
+                JSONObject passwordObj = jsonArray.getJSONObject(i);
+                Iterator<?> keys = passwordObj.keys();
+                while( keys.hasNext() ) {
+                    String key = (String) keys.next();
+                    passObjTemp = passObjTemp + key + ": " + passwordObj.get(key) + "\n";
+//                    if (key.equals("website")) {
+//                        passwordList.add(passwordObj.get(key).toString());
+//                    }
+                }
+                passwordList.add(passObjTemp);
+            }
+        }
+        catch (JSONException e) {
+            Log.e("jsonException", e.toString());
+        }
+        // Adding items to listview
+        adapter = new ArrayAdapter<String>(getActivity(), R.layout.listview_layout, R.id.website_name, passwordList);
+        lv.setAdapter(adapter);
+
+        inputSearch.addTextChangedListener(new TextWatcher() {
+
+            @Override
+            public void onTextChanged(CharSequence cs, int arg1, int arg2, int arg3) {
+                // When user changed the Text
+                password_storage.this.adapter.getFilter().filter(cs);
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence arg0, int arg1, int arg2,
+                                          int arg3) {
+                // TODO Auto-generated method stub
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable arg0) {
+                // TODO Auto-generated method stub
+            }
+        });
 
         //When the ReadFile button is clicked
         btnReadFile.setOnClickListener(new View.OnClickListener() {
@@ -91,6 +159,7 @@ public class password_storage extends Fragment {
                 catch (JSONException e) {
                     Log.e("jsonException", e.toString());
                 }
+
                 Resources res = getResources();
                 txtViewOutput.setText(String.format(res.getString(R.string.password_display), output));
             }
