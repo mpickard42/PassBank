@@ -18,6 +18,7 @@ import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.view.WindowManager;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -190,6 +191,7 @@ public class create_password extends Fragment implements View.OnClickListener{
                     }
                 });
                 AlertDialog b = dialogBuilder.create();
+                b.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
                 b.show();
             }
         });
